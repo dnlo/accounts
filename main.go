@@ -24,7 +24,6 @@ func main() {
 	db, err := storm.Open("users.db")
 	if err != nil {
 		log.Fatal(err)
-		os.Exit(2)
 	}
 	defer db.Close()
 

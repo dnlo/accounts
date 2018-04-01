@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Login</title>
+  <meta name="author" content="dnlo">
+  <meta name="description" content="default description">
+  <meta name="keywords" content="tag1,tag2,tag3">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<style>
+  *{ margin: 0; padding: 0; }
+  main {
+  	margin-top: 5rem;
+  	width: 60%;
+  	margin-left: auto;
+  	margin-rigth: auto;
+ }
+ form, input, button, label, a {
+ 	display: block;
+ 	margin-top: 0.5rem;	
+ }
+
+</style>
+</head>
+<body>
+  <main>
+  	<h2>Login</h2>
+    <form action="/login" method="POST">
+    	<label>Email
+    	<input name="email" type="email" required="true">
+    	<label>Password
+    	<input name="password" type="text" required="true">
+    	<button type="submit">Login</button>
+    </form>
+    <a href="/signup">Sign Up</a>
+    <a href="/private">Private page</a>
+  </main>
+</body>
+</html>

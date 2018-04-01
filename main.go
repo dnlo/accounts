@@ -1,11 +1,11 @@
 package main
 
 import (
-	"html/template"
+	"fmt"
+	"io"
+	"log"
 	"net/http"
 	"os"
-	"log"
-	"fmt"
 
 	"github.com/asdine/storm"
 	"github.com/gorilla/sessions"
@@ -16,7 +16,7 @@ var store = sessions.NewCookieStore([]byte("0oqkfnv983nglfdiouerwjnv9x0ds532jf3s
 
 type User struct {
 	ID       int    `storm:"id,increment"`
-	Email    string `storm:"unique"` 
+	Email    string `storm:"unique"`
 	Password string
 }
 
@@ -27,17 +27,17 @@ func main() {
 		os.Exit(2)
 	}
 	defer db.Close()
-	
+
 	if len(os.Args) < 2 {
 		fmt.Println("I need a port number as argument")
 		return
 	}
-	 
+
 	http.HandleFunc("/", login(db))
 	http.HandleFunc("/signup", signUp(db))
 	http.HandleFunc("/private", private)
 	http.HandleFunc("/logout", logout)
-	
+
 	fmt.Println("Listening on port " + os.Args[1])
 
 	log.Fatal(http.ListenAndServe(":"+os.Args[1], nil))
@@ -49,12 +49,8 @@ func private(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Forbidden", http.StatusForbidden)
 		return
 	}
-	tmpl, err := template.ParseFiles("private.html")
-	if err != nil {
-		log.Print("error parsing private.html", err)
-		return
-	}
-	tmpl.Execute(w, nil)
+	html, _ := os.Open("private.html")
+	io.Copy(w, html)
 }
 
 func signUp(db *storm.DB) func(http.ResponseWriter, *http.Request) {
@@ -79,12 +75,8 @@ func signUp(db *storm.DB) func(http.ResponseWriter, *http.Request) {
 			}
 			http.Redirect(w, r, "/login", 302)
 		case "GET":
-			tmpl, err := template.ParseFiles("signup.html")
-			if err != nil {
-				log.Print("error parsing signup.html", err)
-				return
-			}
-			tmpl.Execute(w, nil)
+			html, _ := os.Open("signup.html")
+			io.Copy(w, html)
 		default:
 			return
 		}
@@ -112,12 +104,8 @@ func login(db *storm.DB) func(http.ResponseWriter, *http.Request) {
 			sess.Save(r, w)
 			http.Redirect(w, r, "/private", 302)
 		case "GET":
-			tmpl, err := template.ParseFiles("login.html")
-			if err != nil {
-				log.Print("error parsing login.html", err)
-				return
-			}
-			tmpl.Execute(w, nil)
+			html, _ := os.Open("login.html")
+			io.Copy(w, html)
 		default:
 			return
 		}
@@ -125,7 +113,7 @@ func login(db *storm.DB) func(http.ResponseWriter, *http.Request) {
 }
 
 func logout(w http.ResponseWriter, r *http.Request) {
-	sess , _ := store.Get(r, "cookie")
+	sess, _ := store.Get(r, "cookie")
 	sess.Values["authenticated"] = false
 	sess.Save(r, w)
 	http.Redirect(w, r, "/", 302)
